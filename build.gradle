@@ -25,6 +25,7 @@ ext {
     roomVersion = '2.1.0-beta01'
     archLifecycleVersion = '2.1.0-alpha04'
     androidxArchVersion = '2.0.0'
+    paging_version = "2.1.0"
 }
 
 allprojects {
