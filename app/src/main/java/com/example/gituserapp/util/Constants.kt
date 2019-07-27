@@ -1,4 +1,4 @@
-package com.example.gituserapp
+package com.example.gituserapp.util
 
 class Constants {
     companion object {

@@ -1,9 +1,9 @@
-package com.example.gituserapp
+package com.example.gituserapp.model
 
 object UsersModel {
 
     data class Result(
-        val total_count : String,
+        val total_count : Int,
         val incomplete_results : String,
         val items : List<Items>
     )

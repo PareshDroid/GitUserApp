@@ -1,5 +1,7 @@
-package com.example.gituserapp
+package com.example.gituserapp.endpoint
 
+import com.example.gituserapp.util.Constants
+import com.example.gituserapp.model.UsersModel
 import io.reactivex.Single
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -9,7 +11,7 @@ import retrofit2.http.Query
 interface ApiService {
 
     @GET("/search/users")
-    fun getTopNews(@Query("q") name: String): Single<UsersModel.Result>
+    fun getSearchedUserData(@Query("q") name: String,@Query("page") page:Int): Single<UsersModel.Result>
 
     companion object Factory {
         fun create(): ApiService {

@@ -1,9 +1,11 @@
-package com.example.gituserapp
+package com.example.gituserapp.features.splash
 
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
+import com.example.gituserapp.R
+import com.example.gituserapp.features.search.SearchActivity
 
 class SplashActivity: AppCompatActivity() {
     private var mDelayHandler: Handler? = null
