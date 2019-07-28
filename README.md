@@ -1,7 +1,7 @@
 # GitUserApp
 
 
-This Project is to search users using github api. This project contains other features like sorting based on their score, name in ascending and descending order
+This Project is to search users using github api. This project contains other features like sorting based on their score, name in ascending and descending order.
 This uses MVVM pattern using ViewModel, Livedata, Retrofit, RxJava and Picasso. This app searches user asynchronusly(as you type).
 
 The example uses Github API. This app searches users based on Github API. Once users are searched you can click on any user
