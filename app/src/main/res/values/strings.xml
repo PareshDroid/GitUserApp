@@ -3,4 +3,6 @@
 
     <string name="splash_header">Github</string>
     <string name="splash_footer">Search Example</string>
+    <string name="search_hint">Click on Search icon to start searching users</string>
+    <string name="user_details">Name: %1$s! \n Score: %2$d</string>
 </resources>

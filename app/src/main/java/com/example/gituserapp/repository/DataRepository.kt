@@ -1,8 +1,10 @@
 package com.example.gituserapp.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.gituserapp.endpoint.ApiService
+import com.example.gituserapp.model.UserRepoModel
 import com.example.gituserapp.model.UsersModel
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -21,6 +23,29 @@ class DataRepository {
         )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+    }
+
+    fun getRepoData(loginName:String):  MutableLiveData<ArrayList<UserRepoModel.Repository>> {
+        val repoList = MutableLiveData<ArrayList<UserRepoModel.Repository>>()
+
+        var usersList: ArrayList<UserRepoModel.Repository> = ArrayList()
+        subscriptions.add(
+            api.getUserRepositories(loginName)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                            userRepository: List<UserRepoModel.Repository> ->
+                        usersList = ArrayList(userRepository)
+                        repoList.value = usersList
+                    },
+                    {
+                            error:Throwable ->
+                        Log.d("error",error.toString())
+                        Log.d("error",error.toString())
+                    }))
+
+        return repoList
     }
 
     fun getSubsequentUserData(query:String,nextPage:Int): MutableLiveData<ArrayList<UsersModel.Items>> {

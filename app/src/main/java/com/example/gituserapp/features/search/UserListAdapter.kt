@@ -6,13 +6,18 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.gituserapp.R
 import com.example.gituserapp.model.UsersModel
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.adapter_user_layout.view.*
 
-class UserListAdapter(private val userArray : ArrayList<UsersModel.Items>) : RecyclerView.Adapter<UserListAdapter.ViewHolder>() {
+class UserListAdapter(private val userArray : ArrayList<UsersModel.Items>, private val listener : Listener) : RecyclerView.Adapter<UserListAdapter.ViewHolder>() {
+
+    interface Listener {
+        fun onUserClicked(userModel : UsersModel.Items)
+    }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        holder.bind(userArray[position], position)
+        holder.bind(userArray[position], listener,position)
     }
 
     override fun getItemCount(): Int = userArray.count()
@@ -23,10 +28,11 @@ class UserListAdapter(private val userArray : ArrayList<UsersModel.Items>) : Rec
     }
 
     class ViewHolder(view : View) : RecyclerView.ViewHolder(view) {
-        fun bind(usersModel: UsersModel.Items, position: Int) {
+        fun bind(usersModel: UsersModel.Items, listener: Listener, position: Int) {
 
-            itemView.name.text = usersModel.login+ usersModel.score
-
+            itemView.setOnClickListener{ listener.onUserClicked(usersModel) }
+            itemView.name.text = "Name:"+ usersModel.login+ "\nScore" + usersModel.score
+            Picasso.get().load(usersModel.avatar_url).fit().into(itemView.user_image)
         }
     }
 

@@ -1,35 +1,38 @@
 package com.example.gituserapp.features.search
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import android.widget.Button
 import android.widget.SearchView
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.gituserapp.R
+import com.example.gituserapp.features.details.UserDetailsActivity
 import com.example.gituserapp.model.UsersModel
 import io.reactivex.Observable
 import io.reactivex.ObservableOnSubscribe
 import io.reactivex.disposables.CompositeDisposable
 import java.util.concurrent.TimeUnit
 
-class SearchActivity : AppCompatActivity() {
+class SearchActivity : AppCompatActivity(), UserListAdapter.Listener {
 
-    private val subscriptions = CompositeDisposable()
-    private lateinit var searchViewModel: SearchViewModel
-    private var usersList: ArrayList<UsersModel.Items> = ArrayList()
-
+    //UI declarations
     lateinit var userRecyclerView: RecyclerView
+    lateinit var searchText: TextView
     lateinit var sortButton: Button
     lateinit var mListAdapter: UserListAdapter
     lateinit var mLayoutManager : LinearLayoutManager
 
+    //local declarations
     var isLastPage: Boolean = false
     var isLoading: Boolean = false
 
@@ -37,12 +40,17 @@ class SearchActivity : AppCompatActivity() {
     var totalPages : Int = 1
     var currentPage : Int = 1
 
+    //other declarations
+    private val subscriptions = CompositeDisposable()
+    private lateinit var searchViewModel: SearchViewModel
+    private var usersList: ArrayList<UsersModel.Items> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
         userRecyclerView = findViewById(R.id.users_recyclerView)
+        searchText = findViewById(R.id.text_search)
         sortButton = findViewById(R.id.sort_button)
 
         searchViewModel = ViewModelProviders.of(this)[SearchViewModel::class.java] // ViewModel and livedata is used.
@@ -98,12 +106,13 @@ class SearchActivity : AppCompatActivity() {
     fun displayUsersData(usersData: UsersModel.Result){
 
         sortButton.visibility= View.VISIBLE
+        searchText.visibility = View.GONE
 
         totalPages = usersData.total_count/30  // counting the number of pages
 
         usersList = ArrayList(usersData.items)
-        mListAdapter = UserListAdapter(usersList)
-        mLayoutManager = LinearLayoutManager(this)
+        mListAdapter = UserListAdapter(usersList,this)
+        mLayoutManager = GridLayoutManager(this,2)
         userRecyclerView.setLayoutManager(mLayoutManager)
         userRecyclerView.setItemAnimator(DefaultItemAnimator())
         userRecyclerView.setAdapter(mListAdapter)
@@ -186,5 +195,13 @@ class SearchActivity : AppCompatActivity() {
         val dialog = builder.create()
         dialog.show()
     }
+
+    override fun onUserClicked(userModel: UsersModel.Items) {
+        val intent = Intent(applicationContext, UserDetailsActivity::class.java)
+        intent.putExtra("loginId",userModel.login)
+        intent.putExtra("profileUrl",userModel.avatar_url)
+        startActivity(intent)
+    }
+
 }
 
