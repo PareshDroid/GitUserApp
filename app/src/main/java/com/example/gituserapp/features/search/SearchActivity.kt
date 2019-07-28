@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -31,6 +32,7 @@ class SearchActivity : AppCompatActivity(), UserListAdapter.Listener {
     lateinit var sortButton: Button
     lateinit var mListAdapter: UserListAdapter
     lateinit var mLayoutManager : LinearLayoutManager
+    lateinit var progressBar:ProgressBar
 
     //local declarations
     var isLastPage: Boolean = false
@@ -49,9 +51,11 @@ class SearchActivity : AppCompatActivity(), UserListAdapter.Listener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
+
         userRecyclerView = findViewById(R.id.users_recyclerView)
         searchText = findViewById(R.id.text_search)
         sortButton = findViewById(R.id.sort_button)
+        progressBar = findViewById(R.id.progressBar)
 
         searchViewModel = ViewModelProviders.of(this)[SearchViewModel::class.java] // ViewModel and livedata is used.
 
@@ -68,6 +72,7 @@ class SearchActivity : AppCompatActivity(), UserListAdapter.Listener {
         val searchView = menu?.findItem(R.id.action_search)?.actionView as SearchView
         //on typing the keywords in the search view of toolbar the keywords are passed to the api call
         // and the result is brought back to the main thread
+
 
         subscriptions.addAll(Observable.create(ObservableOnSubscribe<String> { subscriber ->
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -107,6 +112,7 @@ class SearchActivity : AppCompatActivity(), UserListAdapter.Listener {
 
         sortButton.visibility= View.VISIBLE
         searchText.visibility = View.GONE
+        progressBar.visibility = View.INVISIBLE
 
         totalPages = usersData.total_count/30  // counting the number of pages
 
@@ -128,6 +134,7 @@ class SearchActivity : AppCompatActivity(), UserListAdapter.Listener {
 
             override fun loadMoreItems() {
                 isLoading = true
+                progressBar.visibility = View.VISIBLE
 
                 getMoreUsers()
             }
@@ -147,10 +154,13 @@ class SearchActivity : AppCompatActivity(), UserListAdapter.Listener {
 
             searchViewModel.getSubsequentUserData(searchedString,currentPage).observe(this, Observer<ArrayList<UsersModel.Items>> {
                     subsequentUserList ->
+                progressBar.visibility = View.INVISIBLE
                 usersList.addAll(subsequentUserList)
                 mListAdapter.notifyDataSetChanged()
             })
 
+        }else{
+            progressBar.visibility = View.INVISIBLE
         }
 
     }

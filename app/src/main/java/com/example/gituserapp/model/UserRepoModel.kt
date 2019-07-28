@@ -14,6 +14,7 @@ object UserRepoModel {
         val html_url : String,
         val watchers : String,
         val created_at : String,
-        val updated_at : String
+        val updated_at : String,
+        val language : String
     )
 }
