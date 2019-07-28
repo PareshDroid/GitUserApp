@@ -3,7 +3,10 @@ package com.example.gituserapp.features.search
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
+import android.view.View
+import android.widget.Button
 import android.widget.SearchView
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -20,9 +23,12 @@ class SearchActivity : AppCompatActivity() {
 
     private val subscriptions = CompositeDisposable()
     private lateinit var searchViewModel: SearchViewModel
+    private var usersList: ArrayList<UsersModel.Items> = ArrayList()
 
     lateinit var userRecyclerView: RecyclerView
+    lateinit var sortButton: Button
     lateinit var mListAdapter: UserListAdapter
+    lateinit var mLayoutManager : LinearLayoutManager
 
     var isLastPage: Boolean = false
     var isLoading: Boolean = false
@@ -37,9 +43,13 @@ class SearchActivity : AppCompatActivity() {
         setContentView(R.layout.activity_search)
 
         userRecyclerView = findViewById(R.id.users_recyclerView)
+        sortButton = findViewById(R.id.sort_button)
 
         searchViewModel = ViewModelProviders.of(this)[SearchViewModel::class.java] // ViewModel and livedata is used.
 
+        sortButton.setOnClickListener {
+            showSortDialog()
+        }
     }
 
 
@@ -70,6 +80,7 @@ class SearchActivity : AppCompatActivity() {
             .filter { text -> text.isNotBlank() }
             .switchMapSingle {
                     result ->
+
                                 searchedString = result
                 searchViewModel.getUserData(searchedString,currentPage)  //making network call to the server
 
@@ -86,11 +97,13 @@ class SearchActivity : AppCompatActivity() {
     //display User data to recyclerview
     fun displayUsersData(usersData: UsersModel.Result){
 
+        sortButton.visibility= View.VISIBLE
+
         totalPages = usersData.total_count/30  // counting the number of pages
 
-        val userList = ArrayList(usersData.items)
-        mListAdapter = UserListAdapter(userList)
-        val mLayoutManager = LinearLayoutManager(this)
+        usersList = ArrayList(usersData.items)
+        mListAdapter = UserListAdapter(usersList)
+        mLayoutManager = LinearLayoutManager(this)
         userRecyclerView.setLayoutManager(mLayoutManager)
         userRecyclerView.setItemAnimator(DefaultItemAnimator())
         userRecyclerView.setAdapter(mListAdapter)
@@ -124,11 +137,54 @@ class SearchActivity : AppCompatActivity() {
             currentPage++
 
             searchViewModel.getSubsequentUserData(searchedString,currentPage).observe(this, Observer<ArrayList<UsersModel.Items>> {
-                    subsequentUserList -> mListAdapter.addData(subsequentUserList)
+                    subsequentUserList ->
+                usersList.addAll(subsequentUserList)
+                mListAdapter.notifyDataSetChanged()
             })
 
         }
 
+    }
+
+    fun showSortDialog(){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Choose Sort Option")
+
+        val sortArray = arrayOf("Name(A-Z)", "Name(Z-A)", "Rank Ascending", "Rank Descending")
+        builder.setItems(sortArray) { dialog, which ->
+            when (which) {
+                0 -> {
+                    searchViewModel.sortNameAsc(usersList).observe(this, Observer<ArrayList<UsersModel.Items>> {
+                            sortedUsersList ->
+                        mListAdapter.updateSortedData(sortedUsersList)
+                        mLayoutManager.scrollToPositionWithOffset(0, 0)
+                    })
+                }
+                1 -> {
+                    searchViewModel.sortNameDesc(usersList).observe(this, Observer<ArrayList<UsersModel.Items>> {
+                            sortedUsersList ->
+                        mListAdapter.updateSortedData(sortedUsersList)
+                        mLayoutManager.scrollToPositionWithOffset(0, 0)
+                    })
+                }
+                2 -> {
+                    searchViewModel.sortRankAsc(usersList).observe(this, Observer<ArrayList<UsersModel.Items>> {
+                            sortedUsersList ->
+                        mListAdapter.updateSortedData(sortedUsersList)
+                        mLayoutManager.scrollToPositionWithOffset(0, 0)
+                    })
+                }
+                3 -> {
+                    searchViewModel.sortRankDesc(usersList).observe(this, Observer<ArrayList<UsersModel.Items>> {
+                            sortedUsersList ->
+                        mListAdapter.updateSortedData(sortedUsersList)
+                        mLayoutManager.scrollToPositionWithOffset(0, 0)
+                    })
+                }
+            }
+        }
+        val dialog = builder.create()
+        dialog.show()
     }
 }
 

@@ -18,6 +18,6 @@ object UsersModel {
         val followers_url : String,
         val repos_url : String,
         val type : String,
-        val score : String
+        val score : Float
     )
 }
